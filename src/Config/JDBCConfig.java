@@ -13,5 +13,4 @@ public class JDBCConfig {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL,USER,PASSWORD);
     }
-    public static void closeConnection(Connection conn) {}
 }

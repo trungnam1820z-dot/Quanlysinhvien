@@ -21,8 +21,13 @@ public class StudentDAO {
             ps.setString(2, student.getStudentName());
             ps.setInt(3, student.getAge());
             ps.setString(4, student.getGender());
-            ps.executeUpdate();
-            System.out.println("Thêm sinh viên thành công!");
+            int check = ps.executeUpdate();
+            if (check > 0) {
+                System.out.println("Thêm sinh viên thành công!");
+            }
+            else {
+                System.out.println("Thêm sinh viên thất bại");
+            }
         } catch (SQLException e) {
             logger.log("Error", "Lỗi SQL khi thêm sinh viên");
             throw new RuntimeException(e);
@@ -42,6 +47,7 @@ public class StudentDAO {
                 rs.getString("Gender"));
                 students.add(s);
             }
+            System.out.println("Thông tin sinh viên\n" + students);
         }catch (SQLException e){
             logger.log("Error", "Lỗi SQL khi hiển thị thông tin sinh viên");
             throw new RuntimeException(e);
@@ -56,12 +62,15 @@ public class StudentDAO {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new Student(
+                Student student = new Student(
                         rs.getString("id"),
                         rs.getString("Name"),
                         rs.getInt("Age"),
                         rs.getString("Gender")
                 );
+                System.out.println("Sinh viên có ID: " + id);
+                System.out.println(student);
+                return student;
             }
         }catch (SQLException e){
             logger.log("Error", "Lỗi SQL khi lấy SV theo id");
@@ -96,7 +105,13 @@ public class StudentDAO {
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, id);
-                ps.executeUpdate();
+                int row = ps.executeUpdate();
+                if (row > 0) {
+                    System.out.println("Đã xóa thành công");
+                }
+                else {
+                    System.out.println("Không tìm thấy sinh viên!");
+                }
         }catch (SQLException e){
             logger.log("Error", "Lỗi SQL không xóa được sinh viên");
             throw new RuntimeException(e);

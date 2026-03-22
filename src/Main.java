@@ -1,14 +1,12 @@
 import dto.Student;
 import logger.MyLogger;
 import service.StudentService;
-import util.File_DSSV;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException {
         StudentService studentService = new StudentService();
         MyLogger logger = new MyLogger();
         Scanner sc = new Scanner(System.in);
@@ -52,9 +50,7 @@ public class Main {
                     System.out.print("Nhập vào StudentID cần cập nhật thông tin: ");
                     String cid = sc.nextLine();
                     Student student = studentService.findStudentById(cid);
-                    if (student == null) {
-                        System.out.println("Không tìm thấy sinh viên");
-                    } else {
+                    if (student != null) {
                         System.out.print("Name mới: ");
                         String name = sc.nextLine();
 
@@ -66,7 +62,10 @@ public class Main {
 
                         Student newStudent = new Student(cid, name, age, gender);
                         studentService.updateStudent(newStudent);
+                        System.out.println(newStudent);
                         logger.log("Notice", "Cập nhật thông tin thành công");
+                    } else {
+                        System.out.println("Không tìm thấy sinh viên!");
                         break;
                     }
                 case 5:

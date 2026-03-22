@@ -14,6 +14,6 @@ public class MyLogger {
         String log = LocalDateTime.now() + " [" +  level + "] " + message;
         bw.write(log);
         bw.newLine();
-        bw.close();
+
     }
 }

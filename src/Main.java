@@ -66,8 +66,8 @@ public class Main {
                         logger.log("Notice", "Cập nhật thông tin thành công");
                     } else {
                         System.out.println("Không tìm thấy sinh viên!");
-                        break;
                     }
+                    break;
                 case 5:
                     System.out.print("Nhập ID cần xóa: ");
                     studentService.deleteStudent(sc.nextLine());

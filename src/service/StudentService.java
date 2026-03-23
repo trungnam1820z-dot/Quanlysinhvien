@@ -1,7 +1,7 @@
 package service;
 
 import dto.Student;
-import DAO.StudentDAO;
+import dao.StudentDAO;
 
 import java.io.IOException;
 

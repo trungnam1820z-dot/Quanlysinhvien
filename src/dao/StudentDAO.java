@@ -1,6 +1,6 @@
 package dao;
 
-import Config.JDBCConfig;
+import config.JDBCConfig;
 import dto.Student;
 import logger.MyLogger;
 

@@ -5,7 +5,7 @@ import dto.Student;
 import java.io.*;
 import java.util.List;
 
-public class File_DSSV {
+public class FileDssv {
 
     public static void savaToFile(List<Student> students) throws IOException {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("students.txt"));

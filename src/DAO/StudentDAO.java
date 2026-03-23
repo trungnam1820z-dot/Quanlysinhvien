@@ -9,10 +9,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StudentDAO {
+public class StudentDAO implements DAOInterface<Student> {
     MyLogger logger = new MyLogger();
     public StudentDAO() throws IOException {
     }
+    @Override
     public void insertStudent(Student student) throws IOException {
         String sql = "INSERT INTO student VALUES (?,?,?,?)";
         try(Connection conn = JDBCConfig.getConnection();
@@ -33,6 +34,7 @@ public class StudentDAO {
             throw new RuntimeException(e);
         }
     }
+    @Override
     public List<Student> getAllStudents() throws IOException {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM student";
@@ -47,14 +49,16 @@ public class StudentDAO {
                 rs.getString("Gender"));
                 students.add(s);
             }
-            System.out.println("Thông tin sinh viên\n" + students);
+            System.out.println("Thông tin sinh viên\n");
+            for (Student s : students)
+                System.out.println(s);
         }catch (SQLException e){
             logger.log("Error", "Lỗi SQL khi hiển thị thông tin sinh viên");
             throw new RuntimeException(e);
         }
         return students;
     }
-
+@Override
     public Student getStudentById(String id) throws IOException {
         String sql = "SELECT * FROM student WHERE ID = ?";
         try (Connection conn = JDBCConfig.getConnection();
@@ -78,6 +82,7 @@ public class StudentDAO {
         }
         return null;
     }
+    @Override
     public void updateStudent(Student student) throws IOException {
         String sql = "UPDATE student SET Name=?, Age=?, Gender=? WHERE ID=?";
         try(Connection conn = JDBCConfig.getConnection();
@@ -100,6 +105,7 @@ public class StudentDAO {
             throw new RuntimeException(e);
         }
     }
+    @Override
     public void deleteStudentById(String id) throws IOException {
         String sql = "DELETE FROM student WHERE ID = ?";
         try(Connection conn = JDBCConfig.getConnection();

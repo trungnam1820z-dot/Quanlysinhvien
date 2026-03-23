@@ -14,7 +14,7 @@ public class StudentDAO implements DAOInterface<Student> {
     public StudentDAO() throws IOException {
     }
     @Override
-    public void insertStudent(Student student) throws IOException {
+    public void insert(Student student) throws IOException {
         String sql = "INSERT INTO student VALUES (?,?,?,?)";
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -35,7 +35,7 @@ public class StudentDAO implements DAOInterface<Student> {
         }
     }
     @Override
-    public List<Student> getAllStudents() throws IOException {
+    public List<Student> getAll() throws IOException {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM student";
         try(Connection conn = JDBCConfig.getConnection();
@@ -59,7 +59,7 @@ public class StudentDAO implements DAOInterface<Student> {
         return students;
     }
 @Override
-    public Student getStudentById(String id) throws IOException {
+    public Student getById(String id) throws IOException {
         String sql = "SELECT * FROM student WHERE ID = ?";
         try (Connection conn = JDBCConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -83,7 +83,7 @@ public class StudentDAO implements DAOInterface<Student> {
         return null;
     }
     @Override
-    public void updateStudent(Student student) throws IOException {
+    public void update(Student student) throws IOException {
         String sql = "UPDATE student SET Name=?, Age=?, Gender=? WHERE ID=?";
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -106,7 +106,7 @@ public class StudentDAO implements DAOInterface<Student> {
         }
     }
     @Override
-    public void deleteStudentById(String id) throws IOException {
+    public void deleteById(String id) throws IOException {
         String sql = "DELETE FROM student WHERE ID = ?";
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {

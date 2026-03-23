@@ -7,29 +7,29 @@ import java.io.IOException;
 
 public class StudentService {
 
-    private StudentDAO studentDAO = new StudentDAO();
+    private final StudentDAO studentDAO = new StudentDAO();
 
     public StudentService() throws IOException {
     }
 
     public void addStudent(Student student) throws IOException {
-        studentDAO.insertStudent(student);
+        studentDAO.insert(student);
     }
 
     public void getAllStudent() throws IOException {
-        studentDAO.getAllStudents();
+        studentDAO.getAll();
 
     }
 
     public Student findStudentById(String id) throws IOException {
-        return studentDAO.getStudentById(id);
+        return studentDAO.getById(id);
     }
 
     public void updateStudent(Student student) throws IOException {
-        studentDAO.updateStudent(student);
+        studentDAO.update(student);
     }
 
     public void deleteStudent(String id) throws IOException {
-        studentDAO.deleteStudentById(id);
+        studentDAO.deleteById(id);
     }
 }

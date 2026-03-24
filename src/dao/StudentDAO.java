@@ -11,10 +11,14 @@ import java.util.List;
 
 public class StudentDAO implements DAOInterface<Student> {
     MyLogger logger = new MyLogger();
+    private Connection connection;
     public StudentDAO() throws IOException {
     }
+    public StudentDAO(Connection connection) throws IOException {
+        this.connection = connection;
+    }
     @Override
-    public void insert(Student student) throws IOException {
+    public synchronized void insert(Student student) throws IOException {
         String sql = "INSERT INTO student VALUES (?,?,?,?)";
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -83,7 +87,7 @@ public class StudentDAO implements DAOInterface<Student> {
         return null;
     }
     @Override
-    public void update(Student student) throws IOException {
+    public synchronized void update(Student student) throws IOException {
         String sql = "UPDATE student SET Name=?, Age=?, Gender=? WHERE ID=?";
         try(Connection conn = JDBCConfig.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -122,5 +126,57 @@ public class StudentDAO implements DAOInterface<Student> {
             logger.log("Error", "Lỗi SQL không xóa được sinh viên");
             throw new RuntimeException(e);
         }
+    }
+    @Override
+    public boolean existById(String id) throws IOException {
+        String sql = "SELECT 1 FROM student WHERE id = ?";
+        try (Connection conn = JDBCConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id.trim());
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            logger.log("Error", "Lỗi SQL check tồn tại bản ghi");
+        }
+        return false;
+    }
+    @Override
+    public List<Student> getAllToPage(int offset, int limit) throws IOException {
+        List<Student> list = new ArrayList<>();
+        String sql = "SELECT * FROM student LIMIT ? OFFSET ?";
+        try(Connection conn = JDBCConfig.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Student s = new Student(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getInt("age"),
+                        rs.getString("gender")
+                );
+                list.add(s);
+            }
+        }catch (SQLException e){
+            logger.log("Error", "Lỗi SQL khi lấy dữ liệu");
+        }
+        return list;
+    }
+
+    @Override
+    public int count() throws IOException{
+        String sql = "SELECT COUNT(*) FROM student";
+        try(Connection conn = JDBCConfig.getConnection();
+            Statement st = conn.createStatement()) {
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }catch (SQLException e){
+            logger.log("Error", "Lỗi SQL khi lấy dữ liệu");
+        }
+        return 0;
     }
 }

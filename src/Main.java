@@ -1,13 +1,30 @@
+import config.ConfigLoader;
+import dao.StudentDAO;
+import dto.Page;
 import dto.Student;
 import logger.MyLogger;
+import org.mariadb.jdbc.Connection;
 import service.StudentService;
 
-import java.io.IOException;
+import java.sql.DriverManager;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        StudentService studentService = new StudentService();
+    public static void main(String[] args) throws Exception {
+        ConfigLoader config = new ConfigLoader("Config.properties");
+        String URL = config.get("URL");
+        String USER = config.get("USER");
+        String PASSWORD = config.get("PASSWORD");
+        Connection conn = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
+        StudentDAO studentDAO = new StudentDAO(conn);
+        StudentService studentService = new StudentService(studentDAO);
+        Page<Student> page = studentService.getStudents(1, 10);
+        System.out.println("Page: " + page.getPage());
+        System.out.println("Total Pages: " + page.getTotalPages());
+        System.out.println("Total Items: " + page.getTotalItems());
+        for (Student s : page.getData()) {
+            System.out.println(s.getStudentID() + " - " + s.getStudentName() + " - " + s.getAge() + " - " + s.getGender());
+        }
         MyLogger logger = new MyLogger();
         Scanner sc = new Scanner(System.in);
 
@@ -18,8 +35,6 @@ public class Main {
             System.out.println("3. Tìm theo ID");
             System.out.println("4. Cập nhật thông tinh sinh viên");
             System.out.println("5. Xóa sinh viên");
-//            System.out.println("6. Lưu file");
-//            System.out.println("7. Đọc file");
             System.out.println("0. Thoát");
 
             System.out.print("Nhập lựa chọn: ");
@@ -73,16 +88,6 @@ public class Main {
                     studentService.deleteStudent(sc.nextLine());
                     logger.log("Notice", "Đã Xóa Sinh Viên");
                     break;
-//                case 6:
-//                    File_DSSV.savaToFile(studentService.getStudents());
-//                    logger.log("Notice" , "Đã lưu dữ liệu vào File");
-//                    break;
-//                case 7:
-//                    List<Student> list =  File_DSSV.readFromFile("students.txt");
-//                    if(list!=null){
-//                        studentService.setAll(list);
-//                        logger.log("Notice: ", "Đã đọc file ");
-//                    }
                 case 0:
                     System.exit(0);
                     System.out.println("Chương Trình Kết Thúc");

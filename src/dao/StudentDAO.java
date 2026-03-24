@@ -18,24 +18,45 @@ public class StudentDAO implements DAOInterface<Student> {
         this.connection = connection;
     }
     @Override
-    public synchronized void insert(Student student) throws IOException {
+    public void insert(List<Student> list) throws IOException {
         String sql = "INSERT INTO student VALUES (?,?,?,?)";
-        try(Connection conn = JDBCConfig.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, student.getStudentID());
-            ps.setString(2, student.getStudentName());
-            ps.setInt(3, student.getAge());
-            ps.setString(4, student.getGender());
-            int check = ps.executeUpdate();
-            if (check > 0) {
-                System.out.println("Thêm sinh viên thành công!");
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = JDBCConfig.getConnection();
+            conn.setAutoCommit(false);
+            ps = conn.prepareStatement(sql);
+            int batchSize = 4;
+            int count = 0;
+            for (Student student : list) {
+                ps.setString(1, student.getStudentID());
+                ps.setString(2, student.getStudentName());
+                ps.setInt(3, student.getAge());
+                ps.setString(4, student.getGender());
+                ps.addBatch();
+                count++;
+                if (count % batchSize == 0) {
+                    ps.executeBatch();
+                    ps.clearBatch();
+                }
             }
-            else {
-                System.out.println("Thêm sinh viên thất bại");
+            ps.executeBatch();
+            conn.commit();
+            System.out.println("Successfully inserted student into table");
+        } catch (Exception e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (Exception ex) {
+                logger.log("Error", "Lỗi SQL khi rollback");
             }
-        } catch (SQLException e) {
             logger.log("Error", "Lỗi SQL khi thêm sinh viên");
-            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                logger.log("Error","Lỗi khi đóng kết nối batch và SQL");
+            }
         }
     }
     @Override
@@ -179,4 +200,26 @@ public class StudentDAO implements DAOInterface<Student> {
         }
         return 0;
     }
+
+//    @Override
+//    public void insertBatch(List<Student> list) throws IOException {
+//        String sql = "INSERT INTO student VALUES (?, ?, ?, ?)";
+//        try(Connection conn = JDBCConfig.getConnection();
+//        PreparedStatement ps = conn.prepareStatement(sql)) {
+//            conn.setAutoCommit(false);
+//            for (Student student : list) {
+//                ps.setString(1, student.getStudentID());
+//                ps.setString(2, student.getStudentName());
+//                ps.setInt(3, student.getAge());
+//                ps.setString(4, student.getGender());
+//                ps.addBatch();
+//            }
+//            int[] result = ps.executeBatch();
+//            conn.commit();
+//        }
+//        catch (Exception e)
+//        {
+//            logger.log("Error", "Lỗi SQL khi thêm dữ liệu vào 1 batch");
+//        }
+
 }

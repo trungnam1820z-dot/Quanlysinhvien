@@ -5,7 +5,7 @@ import dao.StudentDAO;
 import dto.Page;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentService {
@@ -18,10 +18,9 @@ public class StudentService {
     }
 
     public void addStudent(Student student) throws IOException {
-        if(studentDAO.existById(student.getStudentID())) {
-            System.out.println("Student already exists");
-        }
-        studentDAO.insert(student);
+        List<Student> list = new ArrayList<>();
+        list.add(student);
+        studentDAO.insert(list);
     }
 
     public void getAllStudent() throws IOException {

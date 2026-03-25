@@ -10,10 +10,9 @@ import java.util.List;
 
 public class StudentService {
 
-    private StudentDAO studentDAO = new StudentDAO();
-    public StudentService() throws IOException {
-    }
-    public StudentService(StudentDAO studentDAO ) throws IOException {
+    private final StudentDAO studentDAO;
+
+    public StudentService(StudentDAO studentDAO ){
         this.studentDAO = studentDAO;
     }
 
@@ -47,12 +46,12 @@ public class StudentService {
     }
     public Page<Student> getStudents(int page, int pageSize) {
         try {
-        if (page <= 0) page = 1;
-        if (pageSize <= 0) pageSize = 10;
-        int total = studentDAO.count();
-        int offset = (page - 1) * pageSize;
-        List<Student> data = studentDAO.getAllToPage(offset, pageSize);
-        return new Page<>(data, page, pageSize, total);
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+            int total = studentDAO.count();
+            int offset = (page - 1) * pageSize;
+            List<Student> data = studentDAO.getAllToPage(offset, pageSize);
+            return new Page<>(data, page, pageSize, total);
     }
         catch (Exception e) {
             throw new RuntimeException("Lỗi khi lấy danh sách sinh viên", e);

@@ -11,9 +11,7 @@ import java.util.List;
 
 public class StudentDAO implements DAOInterface<Student> {
     MyLogger logger = new MyLogger();
-    private Connection connection;
-    public StudentDAO() throws IOException {
-    }
+    private final Connection connection;
     public StudentDAO(Connection connection) throws IOException {
         this.connection = connection;
     }
@@ -43,19 +41,20 @@ public class StudentDAO implements DAOInterface<Student> {
             ps.executeBatch();
             conn.commit();
             System.out.println("Successfully inserted student into table");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             try {
                 if (conn != null) conn.rollback();
             } catch (Exception ex) {
-                logger.log("Error", "Lỗi SQL khi rollback");
+                logger.log("Error", e.getMessage());
+                throw new RuntimeException(ex);
             }
-            logger.log("Error", "Lỗi SQL khi thêm sinh viên");
+            logger.log("Error", e.getMessage());
         } finally {
             try {
                 if (ps != null) ps.close();
                 if (conn != null) conn.close();
             } catch (Exception e) {
-                logger.log("Error","Lỗi khi đóng kết nối batch và SQL");
+                logger.log("Error", "Lỗi khi đóng tài nguyên");
             }
         }
     }
@@ -78,8 +77,8 @@ public class StudentDAO implements DAOInterface<Student> {
             for (Student s : students)
                 System.out.println(s);
         }catch (SQLException e){
-            logger.log("Error", "Lỗi SQL khi hiển thị thông tin sinh viên");
-            throw new RuntimeException(e);
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
         return students;
     }
@@ -102,8 +101,8 @@ public class StudentDAO implements DAOInterface<Student> {
                 return student;
             }
         }catch (SQLException e){
-            logger.log("Error", "Lỗi SQL khi lấy SV theo id");
-            throw new RuntimeException(e);
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
         return null;
     }
@@ -126,8 +125,8 @@ public class StudentDAO implements DAOInterface<Student> {
             }
 
         }catch (SQLException e) {
-            logger.log("Error", "Lỗi SQL khi cập nhật thông tin sinh viên");
-            throw new RuntimeException(e);
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
     }
     @Override
@@ -144,8 +143,8 @@ public class StudentDAO implements DAOInterface<Student> {
                     System.out.println("Không tìm thấy sinh viên!");
                 }
         }catch (SQLException e){
-            logger.log("Error", "Lỗi SQL không xóa được sinh viên");
-            throw new RuntimeException(e);
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
     }
     @Override
@@ -157,7 +156,7 @@ public class StudentDAO implements DAOInterface<Student> {
             ResultSet rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            logger.log("Error", "Lỗi SQL check tồn tại bản ghi");
+            logger.log("Error", e.getMessage());
         }
         return false;
     }
@@ -166,7 +165,7 @@ public class StudentDAO implements DAOInterface<Student> {
         List<Student> list = new ArrayList<>();
         String sql = "SELECT * FROM student LIMIT ? OFFSET ?";
         try(Connection conn = JDBCConfig.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
             ResultSet rs = ps.executeQuery();
@@ -181,7 +180,8 @@ public class StudentDAO implements DAOInterface<Student> {
                 list.add(s);
             }
         }catch (SQLException e){
-            logger.log("Error", "Lỗi SQL khi lấy dữ liệu");
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
         return list;
     }
@@ -190,36 +190,15 @@ public class StudentDAO implements DAOInterface<Student> {
     public int count() throws IOException{
         String sql = "SELECT COUNT(*) FROM student";
         try(Connection conn = JDBCConfig.getConnection();
-            Statement st = conn.createStatement()) {
-            ResultSet rs = st.executeQuery(sql);
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
+            return 0;
         }catch (SQLException e){
-            logger.log("Error", "Lỗi SQL khi lấy dữ liệu");
+            logger.log("Error", e.getMessage());
+            throw new RuntimeException("Database Error", e);
         }
-        return 0;
     }
-
-//    @Override
-//    public void insertBatch(List<Student> list) throws IOException {
-//        String sql = "INSERT INTO student VALUES (?, ?, ?, ?)";
-//        try(Connection conn = JDBCConfig.getConnection();
-//        PreparedStatement ps = conn.prepareStatement(sql)) {
-//            conn.setAutoCommit(false);
-//            for (Student student : list) {
-//                ps.setString(1, student.getStudentID());
-//                ps.setString(2, student.getStudentName());
-//                ps.setInt(3, student.getAge());
-//                ps.setString(4, student.getGender());
-//                ps.addBatch();
-//            }
-//            int[] result = ps.executeBatch();
-//            conn.commit();
-//        }
-//        catch (Exception e)
-//        {
-//            logger.log("Error", "Lỗi SQL khi thêm dữ liệu vào 1 batch");
-//        }
-
 }

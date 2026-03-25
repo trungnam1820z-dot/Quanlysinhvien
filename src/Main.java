@@ -7,8 +7,6 @@ import org.mariadb.jdbc.Connection;
 import service.StudentService;
 
 import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {

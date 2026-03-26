@@ -10,8 +10,9 @@ public class MyLogger {
     public MyLogger() throws IOException {
         bw = new BufferedWriter(new FileWriter("MyLogger.log",true));
     }
-    public synchronized void log(String level, String message) throws IOException {
-        String log = LocalDateTime.now() + " [" +  level + "] " + message;
+
+    public synchronized void log(String level, String message, Throwable t) throws IOException {
+        String log = LocalDateTime.now() + " [" +  level + "] " + message + "\n" + t;
         bw.write(log);
         bw.newLine();
 

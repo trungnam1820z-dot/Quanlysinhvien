@@ -1,22 +1,16 @@
-import config.ConfigLoader;
+import anotation.entities.CRUDRepository;
 import dao.StudentDAO;
 import dto.Page;
 import dto.Student;
-import logger.MyLogger;
-import org.mariadb.jdbc.Connection;
 import service.StudentService;
 
-import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        ConfigLoader config = new ConfigLoader("Config.properties");
-        String URL = config.get("URL");
-        String USER = config.get("USER");
-        String PASSWORD = config.get("PASSWORD");
-        Connection conn = (Connection) DriverManager.getConnection(URL, USER, PASSWORD);
-        StudentDAO studentDAO = new StudentDAO(conn);
+        StudentDAO studentDAO = new StudentDAO();
         StudentService studentService = new StudentService(studentDAO);
         Page<Student> page = studentService.getStudents(1, 10);
         System.out.println("Page: " + page.getPage());
@@ -25,7 +19,6 @@ public class Main {
         for (Student s : page.getData()) {
             System.out.println(s.getStudentID() + " - " + s.getStudentName() + " - " + s.getAge() + " - " + s.getGender());
         }
-        MyLogger logger = new MyLogger();
         Scanner sc = new Scanner(System.in);
 
         while (true) {
@@ -51,7 +44,7 @@ public class Main {
                     System.out.print("Gender: ");
                     String Gender = sc.nextLine();
                     studentService.addStudent(new Student(studentID, studentName, Age, Gender));
-                    logger.log("Notice", "Đã thêm sinh viên vào database");
+                    System.out.println("Đã thêm vào database");
                     break;
                 case 2:
                     studentService.getAllStudent();
@@ -78,7 +71,7 @@ public class Main {
                         Student newStudent = new Student(cid, name, age, gender);
                         studentService.updateStudent(newStudent);
                         System.out.println(newStudent);
-                        logger.log("Notice", "Cập nhật thông tin thành công");
+                        System.out.println("Cập nhật thông tin thành công");
                     } else {
                         System.out.println("Không tìm thấy sinh viên!");
                     }
@@ -86,7 +79,7 @@ public class Main {
                 case 5:
                     System.out.print("Nhập ID cần xóa: ");
                     studentService.deleteStudent(sc.nextLine());
-                    logger.log("Notice", "Đã Xóa Sinh Viên");
+                    System.out.println("Đã Xóa Sinh Viên");
                     break;
                 case 0:
                     System.exit(0);

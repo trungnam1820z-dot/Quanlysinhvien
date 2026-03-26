@@ -10,19 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentDAO implements DAOInterface<Student> {
-    MyLogger logger = new MyLogger();
-    private final Connection connection;
-    public StudentDAO(Connection connection) throws IOException {
-        this.connection = connection;
+    MyLogger logger;
+
+    public StudentDAO() throws IOException {
+        this.logger = new MyLogger();
     }
     @Override
     public void insert(List<Student> list) throws IOException {
         String sql = "INSERT INTO student VALUES (?,?,?,?)";
-        Connection conn = null;
         PreparedStatement ps = null;
-        try {
-            conn = JDBCConfig.getConnection();
-            conn.setAutoCommit(false);
+        try(Connection conn = JDBCConfig.getConnection()) {
             ps = conn.prepareStatement(sql);
             int batchSize = 4;
             int count = 0;
@@ -39,22 +36,15 @@ public class StudentDAO implements DAOInterface<Student> {
                 }
             }
             ps.executeBatch();
-            conn.commit();
             System.out.println("Successfully inserted student into table");
         } catch (SQLException e) {
-            try {
-                if (conn != null) conn.rollback();
-            } catch (Exception ex) {
-                logger.log("Error", e.getMessage());
-                throw new RuntimeException(ex);
-            }
-            logger.log("Error", e.getMessage());
+           logger.log("Error", e.getMessage(),e);
+           throw new RuntimeException(e);
         } finally {
             try {
                 if (ps != null) ps.close();
-                if (conn != null) conn.close();
             } catch (Exception e) {
-                logger.log("Error", "Lỗi khi đóng tài nguyên");
+                logger.log("Error", "Lỗi khi đóng tài nguyên", e);
             }
         }
     }
@@ -77,7 +67,7 @@ public class StudentDAO implements DAOInterface<Student> {
             for (Student s : students)
                 System.out.println(s);
         }catch (SQLException e){
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
         return students;
@@ -91,7 +81,7 @@ public class StudentDAO implements DAOInterface<Student> {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Student student = new Student(
-                        rs.getString("id"),
+                        rs.getString("ID"),
                         rs.getString("Name"),
                         rs.getInt("Age"),
                         rs.getString("Gender")
@@ -101,7 +91,7 @@ public class StudentDAO implements DAOInterface<Student> {
                 return student;
             }
         }catch (SQLException e){
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
         return null;
@@ -125,7 +115,7 @@ public class StudentDAO implements DAOInterface<Student> {
             }
 
         }catch (SQLException e) {
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
     }
@@ -143,12 +133,12 @@ public class StudentDAO implements DAOInterface<Student> {
                     System.out.println("Không tìm thấy sinh viên!");
                 }
         }catch (SQLException e){
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
     }
     @Override
-    public boolean existById(String id) throws IOException {
+    public boolean existsById(String id) throws IOException {
         String sql = "SELECT 1 FROM student WHERE id = ?";
         try (Connection conn = JDBCConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -156,7 +146,7 @@ public class StudentDAO implements DAOInterface<Student> {
             ResultSet rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
         }
         return false;
     }
@@ -172,18 +162,19 @@ public class StudentDAO implements DAOInterface<Student> {
 
             while (rs.next()) {
                 Student s = new Student(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getInt("age"),
-                        rs.getString("gender")
+                        rs.getString("ID"),
+                        rs.getString("Name"),
+                        rs.getInt("Age"),
+                        rs.getString("Gender")
                 );
                 list.add(s);
             }
+            return list;
+
         }catch (SQLException e){
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
-        return list;
     }
 
     @Override
@@ -197,7 +188,7 @@ public class StudentDAO implements DAOInterface<Student> {
             }
             return 0;
         }catch (SQLException e){
-            logger.log("Error", e.getMessage());
+            logger.log("Error", e.getMessage(), e);
             throw new RuntimeException("Database Error", e);
         }
     }

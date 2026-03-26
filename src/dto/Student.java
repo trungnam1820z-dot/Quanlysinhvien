@@ -1,12 +1,23 @@
 package dto;
 
-import java.io.Serializable;
+import anotation.entities.Column;
+import anotation.entities.Entity;
 
+import java.io.Serializable;
+@Entity(table = "student")
 public class Student implements Serializable {
-    private final String studentID;
-    private final String studentName;
-    private final int Age;
-    private final String Gender;
+    @Column(name = "id")
+    private  String studentID;
+    @Column(name = "Name")
+    private  String studentName;
+    @Column(name = "Age")
+    private  int Age;
+    @Column(name = "Gender")
+    private  String Gender;
+
+    public Student() {
+
+    }
 
     public Student(String studentID, String studentName, int Age, String Gender) {
         this.studentID = studentID;

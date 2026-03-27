@@ -1,6 +1,7 @@
 package service;
 
 import anotation.entities.CRUDRepository;
+import anotation.secure.Secure;
 import anotation.transactional.Transactional;
 import dto.Student;
 import dao.StudentDAO;
@@ -24,8 +25,9 @@ public class StudentService {
         list.add(student);
         studentDAO.insert(list);
     }
-
+    @Secure(userName = "admin", password = "123")
     public List<Student> getAllStudent() {
+        System.out.println(crudRepository.findAll(Student.class));
         return crudRepository.findAll(Student.class);
     }
 

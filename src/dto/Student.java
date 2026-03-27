@@ -3,9 +3,8 @@ package dto;
 import anotation.entities.Column;
 import anotation.entities.Entity;
 
-import java.io.Serializable;
 @Entity(table = "student")
-public class Student implements Serializable {
+public class Student {
     @Column(name = "id")
     private  String studentID;
     @Column(name = "Name")

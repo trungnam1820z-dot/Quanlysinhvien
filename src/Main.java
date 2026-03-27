@@ -1,17 +1,16 @@
-import anotation.entities.CRUDRepository;
+import anotation.secure.SecureProcess;
 import dao.StudentDAO;
 import dto.Page;
 import dto.Student;
 import service.StudentService;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         StudentDAO studentDAO = new StudentDAO();
         StudentService studentService = new StudentService(studentDAO);
+        SecureProcess.invoke(studentService,"getAllStudent");
         Page<Student> page = studentService.getStudents(1, 10);
         System.out.println("Page: " + page.getPage());
         System.out.println("Total Pages: " + page.getTotalPages());

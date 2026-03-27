@@ -10,7 +10,17 @@ public class Main {
     public static void main(String[] args) throws Exception {
         StudentDAO studentDAO = new StudentDAO();
         StudentService studentService = new StudentService(studentDAO);
+
+        // anotation secure
         SecureProcess.invoke(studentService,"getAllStudent");
+
+        //IoC Container
+        IoCContainer container = new IoCContainer();
+        container.register(StudentDAO.class,studentDAO);
+        container.register(StudentService.class,new StudentService(container.get(StudentDAO.class)));
+        container.get(StudentService.class);
+
+        //paging
         Page<Student> page = studentService.getStudents(1, 10);
         System.out.println("Page: " + page.getPage());
         System.out.println("Total Pages: " + page.getTotalPages());
